@@ -10,7 +10,7 @@ build-parameters:
       commands:
         - npx -p @sap/cds-dk cds build --production
 modules:
-  - name: hc-officesupplies-srv
+  - name: hana-trial-db-srv
     type: nodejs
     path: gen/srv
     parameters:
@@ -22,18 +22,18 @@ modules:
         properties:
           srv-url: ${default-url}
     requires:
-      - name: hc-officesupplies-db
+      - name: hana-trial-db-deploy
 
-  - name: hc-officesupplies-db-deployer
+  - name: hana-trial-db-deployer
     type: hdb
     path: gen/db
     parameters:
       buildpack: nodejs_buildpack
     requires:
-      - name: hc-officesupplies-db
+      - name: hana-trial-db-deploy
 
 resources:
-  - name: hc-officesupplies-db
+  - name: hana-trial-db-deploy
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
