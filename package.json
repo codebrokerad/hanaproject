@@ -7,16 +7,23 @@
   "private": true,
   "dependencies": {
     "@sap/cds": "^6",
+    "@sap/hana-client": "^2.12.25",
+    "@sap/hdbext": "7.6.4",
+    "@sap/xsenv": "^3.2.2",
+    "@sap/xssec": "^3.2.13",
     "express": "^4",
-    "hdb": "^0.19.0"
+    "hdb": "^0.18.3",
+    "passport": "^0.6.0",
+    "sap-hdbext-promisfied": "^2.202301.1"
   },
   "devDependencies": {
-    "sqlite3": "^5.0.4"
+    "@sap/ux-specification": "^1.100.3",
+    "sqlite3": "^5.0.2"
   },
   "scripts": {
     "start": "cds run",
     "hybrid": "cds watch --profile hybrid"
-},
+  },
   "engines": {
     "node": "^16.15"
   },
