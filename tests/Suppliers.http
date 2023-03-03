@@ -1,0 +1,12 @@
+### Test Error Handling for Suppliers
+POST http://localhost:4004/catalog/Suppliers
+Content-Type: application/json
+
+{ "name" : POLirado"}
+
+### Test Error Handling for Suppliers
+POST http://localhost:4004/catalog/Suppliers
+Content-Type: application/json
+
+{ "ID" : "1f6aed3b-bac0-39e5-ba5b-c091b0d18f40",
+"name" : "FamousUS (NSH)"}
