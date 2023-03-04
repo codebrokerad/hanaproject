@@ -3,85 +3,105 @@ ID: hc-officesupplies
 description: A simple CAP project.
 version: 1.0.0
 modules:
-- name: hana-trial-db-srv
-  type: nodejs
-  path: gen/srv
-  requires:
-  - name: hana-trial-db-deploy
-  provides:
-  - name: srv-api
-    properties:
-      srv-url: ${default-url}
-  parameters:
-    buildpack: nodejs_buildpack
-  build-parameters:
-    builder: npm-ci
-- name: hana-trial-db-deployer
-  type: hdb
-  path: gen/db
-  requires:
-  - name: hana-trial-db-deploy
-  parameters:
-    buildpack: nodejs_buildpack
-- name: hc-officesupplies-app-content
-  type: com.sap.application.content
-  path: .
-  requires:
-  - name: hc-officesupplies-repo-host
-    parameters:
-      content-target: true
-  build-parameters:
-    build-result: resources
+  - name: hana-trial-db-srv
+    type: nodejs
+    path: gen/srv
     requires:
-    - artifacts:
-      - hc450officesuppliesproductsoverview.zip
-      name: hc450officesuppliesproductsoverview
-      target-path: resources/
-- name: hc450officesuppliesproductsoverview
-  type: html5
-  path: app/productsoverview
-  build-parameters:
-    build-result: dist
-    builder: custom
-    commands:
-    - npm install
-    - npm run build:cf
-    supported-platforms: []
+      - name: hana-trial-db-deploy
+      - name: hc-officesupplies-auth
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    parameters:
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: npm-ci
+  - name: hana-trial-db-deployer
+    type: hdb
+    path: gen/db
+    requires:
+      - name: hana-trial-db-deploy
+    parameters:
+      buildpack: nodejs_buildpack
+  - name: hc-officesupplies-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: hc-officesupplies-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+        - artifacts:
+            - hc450officesuppliesproductsoverview.zip
+          name: hc450officesuppliesproductsoverview
+          target-path: resources/
+  - name: hc450officesuppliesproductsoverview
+    type: html5
+    path: app/productsoverview
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build:cf
+      supported-platforms:
+        []
 resources:
-- name: hana-trial-db-deploy
-  type: com.sap.xs.hdi-container
-  parameters:
-    service: hana
-    service-plan: hdi-shared
-- name: hc-officesupplies-repo-host
-  type: org.cloudfoundry.managed-service
-  parameters:
-    service: html5-apps-repo
-    service-name: hc-officesupplies-html5-srv
-    service-plan: app-host
-- name: hc-officesupplies-destination-service
-  type: org.cloudfoundry.managed-service
-  parameters:
-    config:
-      HTML5Runtime_enabled: false
-      init_data:
-        instance:
-          destinations:
-          - Authentication: NoAuthentication
-            Name: ui5
-            ProxyType: Internet
-            Type: HTTP
-            URL: https://ui5.sap.com
-          existing_destinations_policy: update
-      version: 1.0.0
-    service: destination
-    service-name: hc-officesupplies-destination-service
-    service-plan: lite
+  - name: hana-trial-db-deploy
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+  - name: hc-officesupplies-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-name: hc-officesupplies-html5-srv
+      service-plan: app-host
+  - name: hc-officesupplies-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        HTML5Runtime_enabled: false
+        init_data:
+          instance:
+            destinations:
+              - Authentication: NoAuthentication
+                Name: ui5
+                ProxyType: Internet
+                Type: HTTP
+                URL: https://ui5.sap.com
+            existing_destinations_policy: update
+        version: 1.0.0
+      service: destination
+      service-name: hc-officesupplies-destination-service
+      service-plan: lite
+  - name: hc-officesupplies-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: hc-officesupplies-${org}-${space}
+        tenant-mode: dedicated
+        role-collections:
+        - name: 'Vendor-${space}'
+          description: Read Access
+          role-template-references:
+          - $XSAPPNAME.Vendor
+        - name: 'ProcurementManager-${space}'
+          description: All Access
+          role-template-references:
+          - $XSAPPNAME.ProcurementManager
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:
-  - builder: custom
-    commands:
-    - npx -p @sap/cds-dk cds build --production
+    - builder: custom
+      commands:
+        - npx -p @sap/cds-dk cds build --production
